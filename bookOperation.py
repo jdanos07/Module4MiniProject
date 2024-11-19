@@ -1,4 +1,6 @@
 import re
+import userOperations as uo
+import authorOperations as au
 
 class Book_Operations:
     def __init__(self, id_code, title, author, genre, publication_date, available=True):
@@ -36,12 +38,15 @@ class Book_Operations:
 
 
 
-library = {}
+library = {
+    '001': Book_Operations('001', '1984', 'George Orwell', 'Dystopian', '06/1949')
+    }
 
 def new_book(library):
     id_code = f'{len(library) + 1:03d}'
     title = input('Title: ')
     author = input('Author: ')
+    au.Author(author)
     genre = input('Genre: ')
     while True:
         publication_date = input('Publication Date (mm/yyyy): ')
@@ -88,44 +93,68 @@ def search_books():
 
 def borrow_book():
     display_library()
-    book_to_borrow = input('Book ID being borrowed: ')
-    if book_to_borrow in library:
-        book = library[book_to_borrow]
-        if book.get_available():
-            book.set_available(False)    
-            print(f'"{book.get_title()}" has been checked out.')
+    registered_borrower = input('Input User ID: ')
+    
+    if registered_borrower in uo.users:
+        user = uo.users[registered_borrower]
+        book_to_borrow = input('Book ID being borrowed: ')
+
+        if book_to_borrow in library:
+            book = library[book_to_borrow]
+            if book.get_available():
+                book.set_available(False)    
+                user.get_borrowed_books().append(book_to_borrow)
+                print(f'{book.get_title()} has been checked out.')  
         else:
-            print({f'"{book.get_title()}" is not available to be checked out.'})
+                print({f'"{book.get_title()}" is not available to be checked out.'})
+    else:
+        print('Users are required to register for a "User ID" before borrowing from the library.\nPlease proceed to "User Operations" to register.')
 
 def return_book(): 
-    book_to_return = input('Book ID to return: ')
-    if book_to_return in library:
-        book = library[book_to_return]
-        if not book.get_available():
-            book.set_available(True)
-            print(f'"{book.get_title()}" has been returned.')
+    returner = input('Input User ID: ')
+    if returner in uo.users:   
+        book_to_return = input('Book ID to return: ')
+        user = uo.users[returner]
+
+        if book_to_return in user.get_borrowed_books():
+            if book_to_return in library:
+                book = library[book_to_return]
+                if not book.get_available():
+                    book.set_available(True)
+                    print(f'"{book.get_title()}" has been returned.')
+                    user.get_borrowed_books().remove(book_to_return)
+                else:
+                    print(f'"{book.get_title()}" has not been checked out.')
+            else:
+                print('Book Id invalid.')
         else:
-            print(f'"{book.get_title()}" has not been checked out.')
+            print('Book is currently checked out to another user.')
+    else:
+        print('User is not registered.')
+           
+   
+
 
 def bo_main(library):
     print('Book operations:')
     while True:
         print('\n    1. Add Book\n    2. Borrow Book\n    3. Return Book\n    4. Search Book\n    5. Display Library\n    6. Back to Main\n')
     
-        menu_selection = input('Menu Selection (Number or Menu Title): ').lower()
+        bo_input = input('Menu Selection (Number or Menu Title): ').lower()
     
-        if menu_selection == '6' or menu_selection == 'back':
+        if bo_input == '6' or bo_input == 'back to main':
+            print('Returning to Main Menu')
             break
 
-        elif menu_selection == '1' or menu_selection == 'add book':
+        elif bo_input == '1' or bo_input == 'add book':
             new_book(library)
-        elif menu_selection == '2' or menu_selection == 'borrow book':
+        elif bo_input == '2' or bo_input == 'borrow book':
             borrow_book()
-        elif menu_selection == '3' or menu_selection == 'return book':
+        elif bo_input == '3' or bo_input == 'return book':
             return_book()
-        elif menu_selection == '4' or menu_selection == 'search library':
+        elif bo_input == '4' or bo_input == 'search library':
             search_books()
-        elif menu_selection == '5' or menu_selection == 'display library':
+        elif bo_input == '5' or bo_input == 'display library':
             display_library()
         
         else:

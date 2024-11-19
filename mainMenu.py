@@ -1,4 +1,4 @@
-import authorOperations as ao
+import authorOperations as au
 import bookOperation as bo
 import userOperations as uo
 
@@ -24,10 +24,9 @@ while True:
     elif menu_selection == '1' or menu_selection == 'book operations':
         bo.bo_main(bo.library)
     elif menu_selection == '2' or menu_selection == 'user operations':
-        #uo
-        pass
+        uo.uo_main(uo.users)
     elif menu_selection == '3' or menu_selection == 'author operations':
-        #ao
-        pass
+        au.au_main(au.authors)
+    
     else:
         print('Invalid selection. Please enter either the number \"1\" or the text \"Book Operations\".')
